@@ -1,0 +1,133 @@
+
+local censor = game:GetService("CoreGui"):WaitForChild("censor")
+-- wait for frame to be ready
+while not censor do
+    wait()
+    frame = game:GetService("CoreGui").censor.Frame
+end
+local function CreateInstance(cls,props)
+    local inst = Instance.new(cls)
+    for i,v in pairs(props) do
+    inst[i] = v
+    end
+    return inst
+    end
+    
+    local frameO = game:GetService("CoreGui").censor.Frame
+    local wave = game:GetService("Players").LocalPlayer.PlayerGui.Matchmake.Wave
+    local damage = game:GetService("Players").LocalPlayer.leaderstats.Damage
+    local fps = game:GetService("Players").LocalPlayer.PlayerGui.HUD.FPS
+    local left =game:GetService("Players").LocalPlayer.PlayerGui.Matchmake.left
+    local dungeonMap = game:GetService("Workspace").Islands
+
+    -- make a new frame, make dark grey background
+    local frame = CreateInstance("Frame",{
+        Name = "Frame",
+        BackgroundColor3 = Color3.new(0.133333, 0.129411, 0.129411),
+        Position = UDim2.new(0,0,0,0),
+        Size = UDim2.new(1,0,1,0),
+        Parent = frameO
+    })
+    -- Find the map
+    for i,v in pairs(dungeonMap:GetChildren()) do
+        if v.Name ~= "Lobby" then
+            map = v.Name
+        end
+    end
+
+    -- Wave
+    local waveLabel = Instance.new("TextLabel")
+    waveLabel.Name = "Wave"
+    waveLabel.Text = wave.Text
+    waveLabel.Size = UDim2.new(1,0,0.1,0)
+    waveLabel.Position = UDim2.new(0,0,.15,0)
+    waveLabel.Font = Enum.Font.GothamBold
+    waveLabel.TextSize = 40
+    waveLabel.TextColor3 = Color3.new(0, 0, 0)
+    waveLabel.TextStrokeColor3 = Color3.new(0,0,0)
+    waveLabel.Parent = frame
+    waveLabel.BackgroundTransparency = 1
+    wave.Changed:Connect(function()
+        waveLabel.Text = wave.Text
+    end)
+    
+    -- FPS at the top
+    local fpsLabel = Instance.new("TextLabel")
+    fpsLabel.Name = "FPS"
+    fpsLabel.Text = ("FPS: " .. fps.Text)
+    fpsLabel.Size = UDim2.new(1,0,0.1,0)
+    fpsLabel.Position = UDim2.new(0,0,0,0)
+    fpsLabel.Font = Enum.Font.GothamBold
+    fpsLabel.TextSize = 40
+    fpsLabel.TextColor3 = Color3.new(0, 0, 0)
+    fpsLabel.TextStrokeColor3 = Color3.new(0,0,0)
+    fpsLabel.Parent = frame
+    fpsLabel.BackgroundTransparency = 1
+    fps.Changed:Connect(function()
+        fpsLabel.Text = ("FPS: " .. fps.Text)
+    end)
+
+    -- Dungeon Map
+    local dungeonMapLabel = Instance.new("TextLabel")
+    dungeonMapLabel.Name = "DungeonMap"
+    dungeonMapLabel.Text = ("CurrentMap: ".. map)
+    dungeonMapLabel.Size = UDim2.new(1,0,0.1,0)
+    dungeonMapLabel.Position = UDim2.new(0,0,.7,0)
+    dungeonMapLabel.Font = Enum.Font.GothamBold
+    dungeonMapLabel.TextSize = 40
+    dungeonMapLabel.TextColor3 = Color3.new(0, 0, 0)
+    dungeonMapLabel.TextStrokeColor3 = Color3.new(0,0,0)
+    dungeonMapLabel.Parent = frame
+    dungeonMapLabel.BackgroundTransparency = 1
+
+    -- NPCS LEFT
+    local leftLabel = Instance.new("TextLabel")
+    leftLabel.Name = "left"
+    leftLabel.Text = ("NPCS LEFT: " .. left.Text)
+    leftLabel.Size = UDim2.new(1,0,0.1,0)
+    leftLabel.Position = UDim2.new(0,0,0.65,0)
+    leftLabel.Font = Enum.Font.GothamBold
+    leftLabel.TextSize = 40
+    leftLabel.TextColor3 = Color3.new(0, 0, 0)
+    leftLabel.TextStrokeColor3 = Color3.new(0,0,0)
+    leftLabel.Parent = frame
+    leftLabel.BackgroundTransparency = 1
+    left.Changed:Connect(function()
+        leftLabel.Text = ("NPCS LEFT: " .. left.Text)
+    end)
+
+    -- Damage
+    local damageLabel = Instance.new("TextLabel")
+    damageLabel.Name = "Damage"
+    damageLabel.Text = ("Damage: %s"):format(damage.Value)
+    damageLabel.Size = UDim2.new(1,0,0.1,0)
+    damageLabel.Position = UDim2.new(0,0,.2,0)
+    damageLabel.Font = Enum.Font.GothamBold
+    damageLabel.TextSize = 40
+    damageLabel.TextColor3 = Color3.new(0, 0, 0)
+    damageLabel.TextStrokeColor3 = Color3.new(0,0,0)
+    damageLabel.Parent = frame
+    damageLabel.BackgroundTransparency = 1
+    damage.Changed:Connect(function()
+        damageLabel.Text = ("Damage: %s"):format(damage.Value)
+    end)
+
+    -- Timer
+    local label = Instance.new("TextLabel")
+    label.Text = "ServerTimer"
+    label.TextColor3 = Color3.new(0, 0, 0)
+    label.Position = UDim2.new(0, 0, .3, 0)
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 40
+    label.Parent = frame
+    label.BackgroundTransparency = 1
+    
+    while wait()do
+    local scripttime=game.Workspace.DistributedGameTime
+    local seconds = scripttime%60
+    local minutes = math.floor(scripttime/60%60)
+    local hours = math.floor(scripttime/3600)
+    local tempo = string.format("%.0f:%.0f:%.0f", hours ,minutes, seconds)
+    label.Text = ("Timer: %s"):format(tempo)
+    end
