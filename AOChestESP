@@ -1,0 +1,102 @@
+local Players = game:GetService("Players")
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+
+local OBJECT_FOLDERS = {}
+for _, folder in pairs(workspace:GetDescendants()) do
+    if string.find(folder.Name, "Chests") then 
+        table.insert(OBJECT_FOLDERS, folder)
+    end
+end
+
+
+local OBJECT_NAME = "Base"
+local MAX_RENDER_DISTANCE = 500
+
+local ToggleKey = Enum.KeyCode.RightAlt -- Change this to the key you want to toggle the ESP
+getgenv().Enabled = true -- Change this to false if you want to disable the ESP or us the bindable key
+
+local objectTexts = {} -- to keep track of the texts
+
+function DrawObjectText(object)
+    if not object:IsA("BasePart") and object.PrimaryPart ~= nil then
+        object = object.PrimaryPart
+    elseif not object:IsA("BasePart") and object.PrimaryPart == nil then 
+        -- get the first child or descendant that is a BasePart or has a PrimaryPart
+        object = object:FindFirstChildWhichIsA("BasePart") or object:FindFirstChildWhichIsA("Model"):FindFirstChildWhichIsA("BasePart")
+    end  
+
+    local drawText = Drawing.new("Text")
+    drawText.Visible = false
+    drawText.Center = true
+    drawText.Outline = true
+    drawText.Font = Drawing.Fonts.Plex
+    drawText.Color = Color3.fromRGB(255, 0, 255)
+    drawText.Size = 20
+    
+    objectTexts[object] = drawText -- add the text to the objectTexts table
+    
+
+    local renderStepped
+    renderStepped = RunService.RenderStepped:Connect(function()
+        if object and getgenv().Enabled and object.Transparency then -- check if Enabled is true
+            local objectPos, onScreen = Camera:WorldToViewportPoint(object.Position)
+            local renderDistance = (Camera.CFrame.p - object.Position).Magnitude
+            if onScreen and renderDistance <= MAX_RENDER_DISTANCE then
+                drawText.Position = Vector2.new(objectPos.X, objectPos.Y - (object.Size.Magnitude * 5))
+                drawText.Visible = true
+                -- if the object is a PrimaryPart then it will show the name of the parent if not then it will show the name of the object
+                if object:IsA("BasePart") then
+                    drawText.Text = object.Parent.Name .. " (" .. math.floor((object.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude) .. ")"
+                elseif object == object.PrimaryPart then
+                    drawText.Text = object.Parent.Name.. " (" .. math.floor((object.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude).. ")"
+                else
+                    drawText.Text = object.Name.. " (" .. math.floor((object.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude) .. ")"
+                end             
+            else 
+                drawText.Visible = false
+            end
+        else
+            drawText.Visible = false
+        end
+        if not object:IsDescendantOf(workspace) or object.Transparency == 1 then -- check if the object is removed from the game or is invisible
+            objectTexts[object]:Remove()
+            objectTexts[object] = nil
+            renderStepped:Disconnect()
+        end
+    end)
+
+end
+
+for _, folder in pairs(OBJECT_FOLDERS) do
+    for _, object in pairs(folder:GetDescendants()) do
+        if object.Name == OBJECT_NAME then
+            DrawObjectText(object)
+        end
+    end
+
+    folder.ChildAdded:Connect(function(object)
+        if object.Name == OBJECT_NAME then
+            DrawObjectText(object)
+        end
+    end)
+end
+
+RunService.RenderStepped:Connect(function()
+    if not getgenv().Enabled then
+        for _, drawText in pairs(Drawing:GetAll()) do
+            if drawText.Color == Color3.fromRGB(255, 0, 255) then
+                drawText:Remove()
+            end
+        end
+    end
+end)
+    
+    
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == ToggleKey then
+        getgenv().Enabled = not getgenv().Enabled
+    end
+end)
