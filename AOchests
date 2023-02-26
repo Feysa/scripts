@@ -4,6 +4,20 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 
+local OBJECT_FOLDERS = {}
+for _, folder in pairs(workspace:GetDescendants()) do
+    if string.find(folder.Name, "Chests") then 
+        table.insert(OBJECT_FOLDERS, folder)
+    end
+end
+
+
+local OBJECT_NAME = "Base"
+local MAX_RENDER_DISTANCE = 500
+
+local ToggleKey = Enum.KeyCode.RightAlt -- Change this to the key you want to toggle the ESP
+getgenv().Enabled = true -- Change this to false if you want to disable the ESP or us the bindable key
+
 local objectTexts = {} -- to keep track of the texts
 
 function DrawObjectText(object)
@@ -86,4 +100,3 @@ UserInputService.InputBegan:Connect(function(input)
         getgenv().Enabled = not getgenv().Enabled
     end
 end)
-
